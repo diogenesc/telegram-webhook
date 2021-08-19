@@ -1,7 +1,7 @@
 
 # Telegram Webhook
 
-A middleware program to convert webhook from supported services, to Telegram messages
+A middleware API to convert webhook from supported services to Telegram messages
 
 ## Installation
 
