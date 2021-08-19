@@ -3,9 +3,9 @@ package telegram
 import (
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 
+	"github.com/diogenesc/telegram-webhook/env"
 	"github.com/diogenesc/telegram-webhook/providers/bitbucket"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -16,7 +16,7 @@ func initBot(botToken string) *tgbotapi.BotAPI {
 		log.Panic(err)
 	}
 
-	bot.Debug, _ = strconv.ParseBool(os.Getenv("TELEGRAM_BOT_DEBUG"))
+	bot.Debug, _ = strconv.ParseBool(env.GetEnv("TELEGRAM_BOT_DEBUG", "false"))
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
