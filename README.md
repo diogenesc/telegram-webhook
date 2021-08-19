@@ -17,7 +17,7 @@ A server will start on 8080 port.
 
 You can create a `.env` on project root folder
 ```dotenv
-HOST_PORT=8081 # Choose a diferent port
+PORT=8081 # Choose a diferent port
 TELEGRAM_BOT_DEBUG=true # Show debug information from Telegram Bot
 ```
 ## API Reference

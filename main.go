@@ -19,7 +19,7 @@ func main() {
 	router := gin.Default()
 	router.POST("/bitbucket", bitbucketHandler)
 
-	port := env.GetEnv("HOST_PORT", "8080")
+	port := env.GetEnv("PORT", "8080")
 
 	router.Run(":" + port)
 }
