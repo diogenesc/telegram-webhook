@@ -2,6 +2,7 @@ package bitbucket
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 	"strconv"
 
@@ -26,12 +27,12 @@ func BitbucketHandler(c *gin.Context) {
 		return
 	}
 
-	chat_id_64, _ := strconv.ParseInt(chatId, 10, 64)
+	chatId64, _ := strconv.ParseInt(chatId, 10, 64)
 
 	bot = telegram.InitBot(botToken)
 
 	if body.CommitStatus.Type == "build" {
-		notifyBuildStatus(body, chat_id_64)
+		notifyBuildStatus(body, chatId64)
 		c.Status(http.StatusOK)
 		return
 	}
@@ -56,7 +57,16 @@ func buildStatusText(message BuildStatusMessage) string {
 		text += fmt.Sprintf("*%s*\n\n", message.Title)
 	}
 	if message.State != "" {
-		text += fmt.Sprintf("*State:* %s\n\n", message.State)
+		var emote string
+		switch message.State {
+		case "INPROGRESS":
+			emote = html.UnescapeString("&#" + strconv.Itoa(128257) + ";")
+		case "SUCCESSFUL":
+			emote = html.UnescapeString("&#" + strconv.Itoa(9989) + ";")
+		case "FAILED":
+			emote = html.UnescapeString("&#" + strconv.Itoa(10060) + ";")
+		}
+		text += fmt.Sprintf("*State:* %s %s\n\n", message.State, emote)
 	}
 	if message.URL != "" {
 		text += fmt.Sprintf("[More information here](%s)", message.URL)
