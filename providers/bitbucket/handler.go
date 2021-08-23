@@ -41,7 +41,12 @@ func BitbucketHandler(c *gin.Context) {
 }
 
 func notifyBuildStatus(webhook Body, chatId int64) {
-	text := buildStatusText(BuildStatusMessage{webhook.CommitStatus.Name, webhook.CommitStatus.State, webhook.CommitStatus.URL})
+	text := buildStatusText(BuildStatusMessage{
+		webhook.CommitStatus.Name,
+		webhook.CommitStatus.State,
+		webhook.CommitStatus.Commit.Author.User.DisplayName,
+		webhook.CommitStatus.URL,
+	})
 
 	msg := tgbotapi.NewMessage(chatId, text)
 
@@ -67,6 +72,9 @@ func buildStatusText(message BuildStatusMessage) string {
 			emote = html.UnescapeString("&#" + strconv.Itoa(10060) + ";")
 		}
 		text += fmt.Sprintf("*State:* %s %s\n\n", message.State, emote)
+	}
+	if message.Author != "" {
+		text += fmt.Sprintf("*Author:* %s\n\n", message.Author)
 	}
 	if message.URL != "" {
 		text += fmt.Sprintf("[More information here](%s)", message.URL)
