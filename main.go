@@ -7,13 +7,15 @@ import (
 
 	"github.com/diogenesc/telegram-webhook/env"
 	"github.com/diogenesc/telegram-webhook/providers/bitbucket"
+	"github.com/diogenesc/telegram-webhook/providers/github"
 )
 
 func main() {
 	godotenv.Load()
 
 	router := gin.Default()
-	router.POST("/bitbucket", bitbucket.BitbucketHandler)
+	router.POST("/bitbucket", bitbucket.Handler)
+	router.POST("/github", github.Handler)
 
 	port := env.GetEnv("PORT", "8080")
 

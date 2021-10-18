@@ -22,7 +22,7 @@ TELEGRAM_BOT_DEBUG=true # Show debug information from Telegram Bot
 ```
 ## API Reference
 
-### Bitbucket WebHook
+### BitBucket WebHook
 
 ```http
   POST /bitbucket
@@ -35,3 +35,17 @@ TELEGRAM_BOT_DEBUG=true # Show debug information from Telegram Bot
 
 #### Supported triggers:
 - Pipelines
+
+### GitHub WebHook
+
+```http
+  POST /github
+```
+
+| Query Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `bot_token` | `string` | **Required**. Your Telegram Bot Token |
+| `chat_id` | `string` | **Required**. Where to send messages |
+
+#### Supported triggers:
+- Workflows

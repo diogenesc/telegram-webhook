@@ -1,7 +1,7 @@
 package bitbucket
 
 type Repository struct {
-	Name string `json:"name"`
+	FullName string `json:"full_name"`
 }
 
 type CommitStatus struct {
@@ -30,8 +30,9 @@ type Body struct {
 }
 
 type BuildStatusMessage struct {
-	Title  string
-	State  string
-	Author string
-	URL    string
+	RepositoryFullName string
+	Title              string
+	State              string
+	Author             string
+	URL                string
 }

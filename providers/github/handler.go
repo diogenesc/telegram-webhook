@@ -1,4 +1,4 @@
-package bitbucket
+package github
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ func Handler(c *gin.Context) {
 
 	bot = telegram.InitBot(botToken)
 
-	if body.CommitStatus.Type == "build" {
+	if (body.WorkflowRun != WorkflowRun{}) {
 		notifyBuildStatus(body, chatId64)
 		c.Status(http.StatusOK)
 		return
@@ -42,10 +42,11 @@ func Handler(c *gin.Context) {
 func notifyBuildStatus(webhook Body, chatId int64) {
 	text := buildStatusText(BuildStatusMessage{
 		webhook.Repository.FullName,
-		webhook.CommitStatus.Name,
-		webhook.CommitStatus.State,
-		webhook.CommitStatus.Commit.Author.User.DisplayName,
-		webhook.CommitStatus.URL,
+		webhook.WorkflowRun.Name,
+		webhook.WorkflowRun.Status,
+		webhook.WorkflowRun.Conclusion,
+		webhook.Sender.Login,
+		webhook.WorkflowRun.URL,
 	})
 
 	msg := tgbotapi.NewMessage(chatId, text)
@@ -62,24 +63,29 @@ func buildStatusText(message BuildStatusMessage) string {
 		text += fmt.Sprintf("*Repository:* %s\n\n", message.RepositoryFullName)
 	}
 	if message.Title != "" {
-		text += fmt.Sprintf("*%s*\n\n", message.Title)
+		text += fmt.Sprintf("*CI name:* %s\n\n", message.Title)
 	}
-	if message.State != "" {
+	if message.Status != "" {
 		var emote string
-		switch message.State {
-		case "INPROGRESS":
+		var statusMessage string
+		switch message.Status {
+		case "queued":
+			statusMessage = message.Status
 			emote = "🔄"
-		case "SUCCESSFUL":
-			emote = "✅"
-		case "FAILED":
-			emote = "❌"
-		case "STOPPED":
-			emote = "🔴"
+		case "completed":
+			statusMessage = message.Conclusion
+			switch message.Conclusion {
+			case "success":
+				emote = "✅"
+			case "failure":
+				emote = "❌"
+			}
+
 		}
-		text += fmt.Sprintf("*State:* %s %s\n\n", message.State, emote)
+		text += fmt.Sprintf("*State:* %s %s\n\n", statusMessage, emote)
 	}
-	if message.Author != "" {
-		text += fmt.Sprintf("*Author:* %s\n\n", message.Author)
+	if message.Sender != "" {
+		text += fmt.Sprintf("*Author:* %s\n\n", message.Sender)
 	}
 	if message.URL != "" {
 		text += fmt.Sprintf("[More information here](%s)", message.URL)
