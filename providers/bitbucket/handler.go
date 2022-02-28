@@ -1,46 +1,44 @@
 package bitbucket
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/diogenesc/telegram-webhook/telegram"
 	"github.com/gin-gonic/gin"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-var bot *tgbotapi.BotAPI
+type RequestQueryString struct {
+	BotToken string `form:"bot_token" binding:"required"`
+	ChatId   string `form:"chat_id" binding:"required"`
+}
 
 func Handler(c *gin.Context) {
+	var query RequestQueryString
 	var body Body
+
+	c.BindQuery(&query)
 	c.BindJSON(&body)
 
-	botToken := c.Query("bot_token")
-	chatId := c.Query("chat_id")
-
-	if botToken == "" || chatId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Parameter missing",
-		})
+	chatId64, _ := strconv.ParseInt(query.ChatId, 10, 64)
+	event := c.Request.Header.Get("X-Event-Key")
+	if strings.HasPrefix(event, "repo:commit_status_") {
+		notifyBuildStatus(body, chatId64, query.BotToken)
+		c.Status(http.StatusOK)
 		return
 	}
-
-	chatId64, _ := strconv.ParseInt(chatId, 10, 64)
-
-	bot = telegram.InitBot(botToken)
-
-	if body.CommitStatus.Type == "build" {
-		notifyBuildStatus(body, chatId64)
+	if strings.HasPrefix(event, "pullrequest:") {
+		notifyPullRequestStatus(body, chatId64, query.BotToken)
 		c.Status(http.StatusOK)
 		return
 	}
 
-	c.Status(http.StatusBadRequest)
+	c.Status(http.StatusConflict)
 }
 
-func notifyBuildStatus(webhook Body, chatId int64) {
-	text := buildStatusText(BuildStatusMessage{
+func notifyBuildStatus(webhook Body, chatId int64, botToken string) {
+	text := buildPipelineText(BuildPipelineMessage{
 		webhook.Repository.FullName,
 		webhook.CommitStatus.Name,
 		webhook.CommitStatus.State,
@@ -48,42 +46,18 @@ func notifyBuildStatus(webhook Body, chatId int64) {
 		webhook.CommitStatus.URL,
 	})
 
-	msg := tgbotapi.NewMessage(chatId, text)
-
-	msg.ParseMode = "markdown"
-	msg.DisableWebPagePreview = true
-
-	bot.Send(msg)
+	telegram.SendMessage(chatId, text, botToken)
 }
 
-func buildStatusText(message BuildStatusMessage) string {
-	var text string
-	if message.RepositoryFullName != "" {
-		text += fmt.Sprintf("*Repository:* %s\n\n", message.RepositoryFullName)
-	}
-	if message.Title != "" {
-		text += fmt.Sprintf("*%s*\n\n", message.Title)
-	}
-	if message.State != "" {
-		var emote string
-		switch message.State {
-		case "INPROGRESS":
-			emote = "🔄"
-		case "SUCCESSFUL":
-			emote = "✅"
-		case "FAILED":
-			emote = "❌"
-		case "STOPPED":
-			emote = "🔴"
-		}
-		text += fmt.Sprintf("*State:* %s %s\n\n", message.State, emote)
-	}
-	if message.Author != "" {
-		text += fmt.Sprintf("*Author:* %s\n\n", message.Author)
-	}
-	if message.URL != "" {
-		text += fmt.Sprintf("[More information here](%s)", message.URL)
-	}
+func notifyPullRequestStatus(webhook Body, chatId int64, botToken string) {
+	text := buildPullRequestText(BuildPullRequestMessage{
+		webhook.Repository.FullName,
+		webhook.PullRequest.Title,
+		webhook.PullRequest.Source.Branch.Name,
+		webhook.PullRequest.Destination.Branch.Name,
+		webhook.PullRequest.State,
+		webhook.PullRequest.Links.Html.Href,
+	})
 
-	return text
+	telegram.SendMessage(chatId, text, botToken)
 }
