@@ -35,6 +35,7 @@ TELEGRAM_BOT_DEBUG=true # Show debug information from Telegram Bot
 
 #### Supported triggers:
 - Pipelines
+- Pull Request
 
 ### GitHub WebHook
 
