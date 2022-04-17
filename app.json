@@ -2,7 +2,7 @@
     "name": "Telegram Webhook",
     "description": "Parses webhooks from supported services and sends to Telegram",
     "repository": "https://github.com/diogenesc/telegram-webhook",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/640px-Telegram_logo.svg.png",
+    "logo": "https://raw.githubusercontent.com/diogenesc/telegram-webhook/main/assets/telegram-logo.png",
     "keywords": ["telegram", "webhook", "bitbucket", "github", "golang"],
     "env": {
         "PORT": {
