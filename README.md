@@ -3,6 +3,9 @@
 
 A middleware API to convert webhook from supported services to Telegram messages
 
+## Deploy to Heroku
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Installation
 
 Build with Go
