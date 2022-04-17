@@ -3,5 +3,17 @@
     "description": "Parses webhooks from supported services and sends to Telegram",
     "repository": "https://github.com/diogenesc/telegram-webhook",
     "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/640px-Telegram_logo.svg.png",
-    "keywords": ["telegram", "webhook", "bitbucket", "github", "golang"]
+    "keywords": ["telegram", "webhook", "bitbucket", "github", "golang"],
+    "env": {
+        "PORT": {
+          "description": "What port should the server listen on",
+          "required": "false",
+          "value": "8080"
+        },
+        "TELEGRAM_BOT_DEBUG": {
+          "description": "If Telegram Bot should be initialized in debug mode",
+          "required": "false",
+          "value": "false"
+        }
+    }
 }
